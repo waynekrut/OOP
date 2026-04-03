@@ -1,54 +1,83 @@
 from tkinter import *
+from random import *
 class Player:
     def __init__(self, canvas, x, y):
-        self.canvas = canvas
-        self.x = x
-        self.y = y
-        self.frames_r = []
-        self.frames_l = []
-        self.speed = 10
-        self.vx = self.speed
-        self.size = 100
-        self.current_frame = 0
-        self.sprite_id = None
-        self.direction = 'right'
+        self.__canvas = canvas
+        self.__x = x
+        self.__y = y
+        self.__frames_r = []
+        self.__frames_l = []
+        self.__speed = 10
+        self.__vx = self.__speed
+        self.__size = 100
+        self.__current_frame = 0
+        self.__sprite_id = None
+        self.__direction = 'right'
+
+        self._lives = 3
     def load_frames(self):
-        self.frames_r = [PhotoImage(file=f'textures/man{i}.png') for i in range(1,8)]
-        self.frames_l = [PhotoImage(file=f'textures/man{i}.png') for i in range(1,8)]
+        self.__frames_r = [PhotoImage(file=f'textures/man{i}.png') for i in range(1, 8)]
+        self.__frames_l = [PhotoImage(file=f'textures/man{i}.png') for i in range(1, 8)]
     def create(self):
-        if self.frames_r:
-            self.sprite_id = self.canvas.create_image(self.x, self.y, image=self.frames_r[0], anchor=NW)
+        if self.__frames_r:
+            self.__sprite_id = self.__canvas.create_image(self.__x, self.__y, image=self.__frames_r[0], anchor=NW)
 
     def move_right(self):
-        self.direction = 'right'
-        self.vx = self.speed
+        self.__direction = 'right'
+        self.__vx = self.__speed
 
     def move_left(self):
-        self.direction = 'left'
-        self.vx = -self.speed
+        self.__direction = 'left'
+        self.__vx = -self.__speed
 
     def update_position(self):
-        print("пошел")
-        self.x += self.vx
-        if self.x < 0:
-            self.x = 0
+        self.__x += self.__vx
+        if self.__x < 0:
+            self.__x = 0
             self.move_right()
-        if self.x > 800 - self.size:
-            self.x = 800-self.size
+        if self.__x > 800 - self.__size:
+            self.__x = 800 - self.__size
             self.move_left()
-        if self.sprite_id:
-            self.canvas.coords(self.sprite_id, self.x, self.y)
+        if self.__sprite_id:
+            self.__canvas.coords(self.__sprite_id, self.__x, self.__y)
 
 
     def animate(self):
-        self.current_frame = (self.current_frame + 1) % 7
-        if self.direction == 'right':
-            frame = self.frames_r[self.current_frame]
+        self.__current_frame = (self.__current_frame + 1) % 7
+        if self.__direction == 'right':
+            frame = self.__frames_r[self.__current_frame]
         else:
-            frame = self.frames_l[self.current_frame]
+            frame = self.__frames_l[self.__current_frame]
 
-        if self.sprite_id:
-            self.canvas.itemconfig(self.sprite_id, image=frame)
+        if self.__sprite_id:
+            self.__canvas.itemconfig(self.__sprite_id, image=frame)
+
+    def get_x(self):
+        return self.__x
+    def get_y(self):
+        return self.__y
+    def get_direction(self):
+        return self.__direction
+    def get_speed(self):
+        return self.__speed
+    def get_lives(self):
+        return self._lives
+
+    # def set_speed(self, speed):
+    #     if 5 <= speed <= 30:
+    #         self.__speed = speed
+    #         if self.__vx > 0
+    #             self.__vx = speed
+
+
+    def lose_life(self):
+        if self._lives > 0:
+            self._lives -= 1
+            print(f"Потеряна жизнь. Осталось жизней: {self._lives}")
+            if self._lives == 0:
+                print("ИГРА ОКОНЧЕНА!")
+            return True
+        return False
 
 class Fallingitems:
     def __init__(self, canvas, x, y, item_type):
@@ -56,7 +85,12 @@ class Fallingitems:
         self.x = x
         self.y = y
         self.type = item_type
+
+        self.vy = 10
+        self.size = 50
         self.image = None
+        self.sprite_id = None
+        self.is_active = True
 
     def load_items(self):
         if self.type == 'apple':
@@ -72,13 +106,53 @@ class Fallingitems:
 
     def create(self):
         if self.image:
-            self.sprite_id = self.canvas.create_image(self.x, self.y, image=self.image,anchor = NW)
+            self.sprite_id = self.canvas.create_image(self.x, self.y, image=self.image, anchor = NW)
+
+    def fall(self):
+        if self.is_active:
+            self.y += self.vy
+            if self.sprite_id:
+                self.canvas.coords(self.sprite_id, self.x, self.y)
+
+    def is_off_screen(self):
+        return self.y > 600
+
+    def check_collision(self, player_x, player_y, player_size):
+        if not self.is_active:
+             return False
+        if (self.x < player.__x + player_size and
+                 self.x + self.size > player_x and
+                 self.y < player_y + player_size and
+                 self.y + self.size > player_y):
+            self.is_active = False
+            if self.sprite_id:
+                self.canvas.delete(self.sprite_id)
+            return True
+        return False
 
 
 def animate():
+    global apple
     player.update_position()
     player.animate()
+
+    apple.fall()
+
+    if apple.check_collision(player.__x, player.__y, player.__size):
+        print("Поймал предмет")
+        new_x = randint(0, 800 - apple.size)
+        apple = Fallingitems(canvas, new_x, 0, 'fruit')
+        apple.load_items()
+        apple.create()
+    elif apple.is_off_screen():
+        print("Предмет упал")
+        canvas.delete(apple.sprite_id)
+        new_x = randint(0, 800 - apple.size)
+        apple = Fallingitems(canvas, new_x, 0, 'fruit')
+        apple.load_items()
+        apple.create()
     window.after(50,animate)
+
 def on_key_press(event):
     if event.keysym == 'Left':
         player.move_left()

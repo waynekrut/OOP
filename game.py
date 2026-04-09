@@ -1,5 +1,6 @@
 from tkinter import *
 from random import *
+
 class Player:
     def __init__(self, canvas, x, y):
         self.__canvas = canvas
@@ -15,9 +16,11 @@ class Player:
         self.__direction = 'right'
 
         self._lives = 3
+
     def load_frames(self):
         self.__frames_r = [PhotoImage(file=f'textures/man{i}.png') for i in range(1, 8)]
         self.__frames_l = [PhotoImage(file=f'textures/man{i}.png') for i in range(1, 8)]
+
     def create(self):
         if self.__frames_r:
             self.__sprite_id = self.__canvas.create_image(self.__x, self.__y, image=self.__frames_r[0], anchor=NW)
@@ -41,7 +44,6 @@ class Player:
         if self.__sprite_id:
             self.__canvas.coords(self.__sprite_id, self.__x, self.__y)
 
-
     def animate(self):
         self.__current_frame = (self.__current_frame + 1) % 7
         if self.__direction == 'right':
@@ -54,21 +56,12 @@ class Player:
 
     def get_x(self):
         return self.__x
+
     def get_y(self):
         return self.__y
-    def get_direction(self):
-        return self.__direction
-    def get_speed(self):
-        return self.__speed
-    def get_lives(self):
-        return self._lives
 
-    # def set_speed(self, speed):
-    #     if 5 <= speed <= 30:
-    #         self.__speed = speed
-    #         if self.__vx > 0
-    #             self.__vx = speed
-
+    def get_size(self):
+        return self.__size
 
     def lose_life(self):
         if self._lives > 0:
@@ -78,6 +71,7 @@ class Player:
                 print("ИГРА ОКОНЧЕНА!")
             return True
         return False
+
 
 class Fallingitems:
     def __init__(self, canvas, x, y, item_type):
@@ -97,16 +91,16 @@ class Fallingitems:
             self.image = PhotoImage(file='textures/apple.png')
         elif self.type == 'banana':
             self.image = PhotoImage(file='textures/banana.png')
-        if self.type == 'sberry':
+        elif self.type == 'sberry':
             self.image = PhotoImage(file='textures/sberry.png')
-        if self.type == 'watermelon':
+        elif self.type == 'watermelon':
             self.image = PhotoImage(file='textures/watermelon.png')
-        if self.type == 'axe':
+        elif self.type == 'axe':
             self.image = PhotoImage(file='textures/axe.png')
 
     def create(self):
         if self.image:
-            self.sprite_id = self.canvas.create_image(self.x, self.y, image=self.image, anchor = NW)
+            self.sprite_id = self.canvas.create_image(self.x, self.y, image=self.image, anchor=NW)
 
     def fall(self):
         if self.is_active:
@@ -119,11 +113,11 @@ class Fallingitems:
 
     def check_collision(self, player_x, player_y, player_size):
         if not self.is_active:
-             return False
-        if (self.x < player.__x + player_size and
-                 self.x + self.size > player_x and
-                 self.y < player_y + player_size and
-                 self.y + self.size > player_y):
+            return False
+        if (self.x < player_x + player_size and
+            self.x + self.size > player_x and
+            self.y < player_y + player_size and
+            self.y + self.size > player_y):
             self.is_active = False
             if self.sprite_id:
                 self.canvas.delete(self.sprite_id)
@@ -138,26 +132,33 @@ def animate():
 
     apple.fall()
 
-    if apple.check_collision(player.__x, player.__y, player.__size):
+    if apple.check_collision(player.get_x(), player.get_y(), player.get_size()):
         print("Поймал предмет")
         new_x = randint(0, 800 - apple.size)
-        apple = Fallingitems(canvas, new_x, 0, 'fruit')
+        item_type = choice(['apple', 'banana', 'sberry', 'watermelon', 'axe'])
+        apple = Fallingitems(canvas, new_x, 0, item_type)
         apple.load_items()
         apple.create()
+
     elif apple.is_off_screen():
         print("Предмет упал")
         canvas.delete(apple.sprite_id)
         new_x = randint(0, 800 - apple.size)
-        apple = Fallingitems(canvas, new_x, 0, 'fruit')
+        item_type = choice(['apple', 'banana', 'sberry', 'watermelon', 'axe'])
+        apple = Fallingitems(canvas, new_x, 0, item_type)
         apple.load_items()
         apple.create()
-    window.after(50,animate)
+
+    window.after(50, animate)
+
 
 def on_key_press(event):
     if event.keysym == 'Left':
         player.move_left()
     elif event.keysym == 'Right':
         player.move_right()
+
+
 window = Tk()
 window.title("Съедобное - несъедобное 2")
 window.geometry('800x600')
@@ -165,25 +166,9 @@ window.geometry('800x600')
 canvas = Canvas(window, width=800, height=600, bg='skyblue')
 canvas.pack()
 
-player = Player(canvas,400,500)
+player = Player(canvas, 400, 500)
 player.load_frames()
 player.create()
-
-banana = Fallingitems(canvas, 150, 0, 'banana')
-banana.load_items()
-banana.create()
-
-sberry = Fallingitems(canvas, 250, 0, 'sberry')
-sberry.load_items()
-sberry.create()
-
-watermelon = Fallingitems(canvas, 350, 48, 'watermelon')
-watermelon.load_items()
-watermelon.create()
-
-axe = Fallingitems(canvas, 450, 0, 'axe')
-axe.load_items()
-axe.create()
 
 apple = Fallingitems(canvas, 550, 0, 'apple')
 apple.load_items()

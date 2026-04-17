@@ -6,14 +6,15 @@ class Player:
         self.__canvas = canvas
         self.__x = x
         self.__y = y
-        self.__frames_r = []
-        self.__frames_l = []
         self.__speed = 10
         self.__vx = self.__speed
         self.__size = 100
+        self.__frames_r = []
+        self.__frames_l = []
         self.__current_frame = 0
         self.__sprite_id = None
         self.__direction = 'right'
+
 
         self._lives = 3
 
@@ -62,7 +63,8 @@ class Player:
 
     def get_size(self):
         return self.__size
-
+    def get_lives(self):
+        return self._lives
     def get_direction(self):
         return self.__direction
 
@@ -107,6 +109,8 @@ class Fallingitems:
         self.__image = None
         self.__sprite_id = None
         self.__is_active = True
+        self.__rotation = 0
+        self.__rotation_speed = 0
 
         self.__points = {'fruit':1,
                        'vegetable':3}.get(item_type, 0)
@@ -117,8 +121,8 @@ class Fallingitems:
     def get_y(self):
         return self.__y
 
-    def get_position(self):
-        return self.__x, self.__y
+    #def get_position(self):
+    #    return self.__x, self.__y
 
     def get_type(self):
         return self.__type

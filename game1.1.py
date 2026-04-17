@@ -145,6 +145,9 @@ class Fallingitems:
         else:
             print(f'Ошибка: скорость {vy} слишком большая.')
 
+    def set_rotation(self, speed):
+        self.__rotation = speed
+
     def load_items(self):
         if self.__type == 'apple':
             self.__image = PhotoImage(file='textures/apple.png')
@@ -182,6 +185,14 @@ class Fallingitems:
                 self.__canvas.delete(self.__sprite_id)
             return True
         return False
+
+    def on_collision(self):
+        pass
+
+    def destroy(self):
+        if self.__sprite_id:
+            self.__canvas.delete(self.__sprite_id)
+        self.__is_active = False
 
 
 def animate():
@@ -223,6 +234,29 @@ def on_key_press(event):
         player.set_speed(15)
     elif event.keysym == 'Down':
         player.set_speed(5)
+
+class Fruit(Fallingitems):
+    def __init__(self, canvas, x, y, fruit_type='apple'):
+        super().__init__(canvas,x,y)
+        self.fruit_type = fruit_type
+        self.points = 1
+
+        if fruit_type == 'apple':
+            self.set_speed(10)
+            self.load_items('textures/apple.png')
+
+    def get_points(self):
+        return self.points
+    def on_collision(self):
+        print(f'Съеден {self.fruit_type}! +{self.points} очков')
+        #здесь будет увеличение счета
+
+class Vegetable(Fallingitems):
+    pass
+
+class Axe(Fallingitems):
+    pass
+
 
 window = Tk()
 window.title("Съедобное - несъедобное 2")

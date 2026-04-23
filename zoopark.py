@@ -57,9 +57,10 @@ class Cow(DomesticAnimal):
         super().make_sound()
         print("Мууу")
     def pet(self):
+        print(f"Корова {self.name} мычит от удовольтсвия")
 
 class Director(Staff):
-    def __init__(self, name, age, salary):
+    def __init__(self, name, age, status, salary):
         super().__init__(name, age, "директор", salary)
     def work(self):
         super().work()
@@ -72,13 +73,43 @@ class Child(Visitor):
         super().look_at_animals()
         print(f"Ребенок {self.name} радуется и хлопает в ладоши")
 
+class Lion(WildAnimal):
+    def __init__(self, name, age, species, is_dangerous):
+        super().__init__(name, age, species, is_dangerous)
+    def make_sound(self):
+        print(f"Лев {self.name} рычит")
 
+class Cat(DomesticAnimal):
+    def __init__(self, name, age, species, owner):
+        super().__init__(name, age, species, owner)
+    def make_sound(self):
+        print(f"Кошка {self.name} мякает")
+class Goat(DomesticAnimal):
+    def __init__(self, name, age, species, owner):
+        super().__init__(name,age,species, owner)
+    def make_sound(self):
+        print(f'Козел {self.name} блеет')
 
+class Elephant(WildAnimal):
+    def __init__(self, name, age, species, is_dangerous):
+        super().__init__(name, age, species, is_dangerous)
+    def make_sound(self):
+        print(f"Слон {self.name} трубит")
+
+class Veterinary(Staff):
+    def __init__(self, name, age, status, salary):
+        super().__init__(name,age,"Ветеринар", salary)
+    def work(self):
+        print(f"Ветеринар {self.name}  лечит людей")
 wolf = Wolf("Серый", 5)
 cow = Cow("Буренка", 4, "Зоопарк")
-director = Director("Иван Петрович", 45, 150000)
+director = Director("Иван Петрович", 45, "директор", 150000)
 child = Child("Маша", 8, True)
-
+lion = Lion('Лео', 5, "Млекопитающее", True)
+cat = Cat("Мурка", 2, "Зоопарк")
+goat = Goat("Дымок", 4, "млекопитающее", False)
+elephant = Elephant("Тини", 6, "млекопитающее", False)
+veterinary = Veterinary("Анна", 27, "Ветеринар", 70000)
 wolf.introduce()
 wolf.make_sound()
 
@@ -88,4 +119,16 @@ cow.pet()
 
 child.introduce()
 child.fun()
+
+director.introduce()
+director.work()
+
+lion.introduce()
+lion.make_sound()
+
+elephant.introduce()
+elephant.make_sound()
+
+veterinary.introduce()
+veterinary.work()
 #дз создать другие классы(лев, кошка кощел, взрослый, ветеринар, слон, лев

@@ -99,11 +99,10 @@ class Player:
 
 
 class Fallingitems:
-    def __init__(self, canvas, x, y, item_type):
+    def __init__(self, canvas, x, y):
         self.__canvas = canvas
         self.__x = x
         self.__y = y
-        self.__type = item_type
         self.__vy = 10
         self.__size = 50
         self.__image = None
@@ -112,8 +111,8 @@ class Fallingitems:
         self.__rotation = 0
         self.__rotation_speed = 0
 
-        self.__points = {'fruit':1,
-                       'vegetable':3}.get(item_type, 0)
+        # self.__points = {'fruit':1,
+        #                'vegetable':3}.get(item_type, 0)
 
     def get_x(self):
         return self.__x
@@ -148,17 +147,11 @@ class Fallingitems:
     def set_rotation(self, speed):
         self.__rotation = speed
 
-    def load_items(self):
-        if self.__type == 'apple':
-            self.__image = PhotoImage(file='textures/apple.png')
-        elif self.__type == 'banana':
-            self.__image = PhotoImage(file='textures/banana.png')
-        elif self.__type == 'sberry':
-            self.__image = PhotoImage(file='textures/sberry.png')
-        elif self.__type == 'watermelon':
-            self.__image = PhotoImage(file='textures/watermelon.png')
-        elif self.__type == 'axe':
-            self.__image = PhotoImage(file='textures/axe.png')
+    def load_items(self, image_path):
+        try:
+            self.__image = PhotoImage(file=image_path)
+        except:
+            print(f'Ошибка загрузки: {image_path}')
 
     def create(self):
         if self.__image:
@@ -196,33 +189,10 @@ class Fallingitems:
 
 
 def animate():
-    global apple
-    player.update_position()
-    player.animate()
-    apple.fall()
-
-    player_x = player.get_x()
-    player_y = player.get_y()
-    player_size = player.get_size()
-
-    if apple.check_collision(player_x, player_y, player_size):
-        print("Поймал предмет")
-        new_x = randint(0, 800 - apple.get_size())
-        #item_type = choice(['apple', 'banana', 'sberry', 'watermelon', 'axe'])
-        apple = Fallingitems(canvas, new_x, 0, 'fruit')
-        apple.load_items()
-        apple.create()
-
-    elif apple.is_off_screen():
-        print("Предмет упал")
-        canvas.delete(apple.get_sprite_id())
-        new_x = randint(0, 800 - apple.get_size())
-        item_type = choice(['apple', 'banana', 'sberry', 'watermelon', 'axe'])
-        apple = Fallingitems(canvas, new_x, 0, item_type)
-        apple.load_items()
-        apple.create()
-
-    window.after(50, animate)
+    global game_manager
+    result = game_manager.update()
+    if result != 'game_over':
+        window.after(50,animate)
 
 
 def on_key_press(event):
@@ -244,6 +214,9 @@ class Fruit(Fallingitems):
         if fruit_type == 'apple':
             self.set_speed(10)
             self.load_items('textures/apple.png')
+        if fruit_type == 'banana':
+            self.set_speed(12)
+            self.load_items('textures/banana.png')
 
     def get_points(self):
         return self.points
@@ -252,12 +225,114 @@ class Fruit(Fallingitems):
         #здесь будет увеличение счета
 
 class Vegetable(Fallingitems):
-    pass
+    def __init__(self, canvas, x, y, vegetable_type='apple'):
+        super().__init__(canvas,x,y)
+        self.fruit_type = vegetable_type
+        self.points = 1
+
+        if vegetable_type == 'watermelon':
+            self.set_speed(15)
+            self.load_items('textures/watermelon.png')
+        if vegetable_type == 'sberry':
+            self.set_speed(8)
+            self.load_items('textures/sberry.png')
+
+    def get_points(self):
+        return self.points
+
+    def on_collision(self):
+        print(f'Съеден {self.fruit_type}! +{self.points} очков')
+        # здесь будет увеличение счета
 
 class Axe(Fallingitems):
-    pass
+    def __init__(self, canvas, x, y):
+        super().__init__(canvas, x, y)
 
+        # set.points = -1
+        self.set_speed(15)
+        self.load_items('textures/axe1.png')
 
+        self.frames = []
+        self.current_frame = 0
+        self.load_frames()
+
+    def load_frames(self):
+        try:
+            self.frames = [PhotoImage(file=f'textures/axe{i}.png') for i in range(1,5)]
+        except:
+            print("Не удалось загрузить анимацию топора.")
+
+    def on_collision(self):
+        print("Попал в топор! Игра окончена.")
+        return('game_over')
+
+    def get_points(self):
+        return self.get_points()
+
+class GameManager:
+    def __init__(self, canvas, player):
+        self.canvas = canvas
+        self.player = player
+        self.items = []
+        self.score = 0
+        self.game_over = False
+
+        self.score_text = canvas.create_text(
+            50, 30, text = "Счет: 0",
+            font = ('Arial', 20), fill = 'white')
+
+        self.lives_text = canvas.create_text(
+            150, 30, text = "Жизни: 1",
+            font = ('Arial', 20), fill = 'white')
+    def spawn_items(self):
+        x = randint(0,750)
+        item_type = choice(['apple', 'banana', 'sberry', 'watermelon', 'axe'])
+        if item_type == 'apple':
+            item = Fruit(self.canvas, x, 0, 'apple')
+        elif item_type == 'banana':
+            item = Fruit(self.canvas, x, 0, 'banana')
+        elif item_type == 'sberry':
+            item = Vegetable(self.canvas, x, 0, 'sberry')
+        elif item_type == 'watermelon':
+            item = Vegetable(self.canvas, x, 0, 'watermelon')
+        else:
+            item = Axe(self.canvas, x, 0)
+        item.create()
+    def update(self):
+        if self.game_over:
+            return "game_over"
+        self.player.update_position()
+        self.player.animate()
+
+        for item in self.items[:]:
+            item.fall()
+
+            player_x = self.player.get_x()
+            player_y = self.player.get_y()
+            player_size = self.player.get_size()
+
+            if item.check_collision(player_x, player_y, player_size):
+                self.score += item.get_points()
+                self.canvas.itemconfig(self.score_text, text=f'Счет: {self.score}')
+
+                if isinstance(item, Axe):
+                    self.game_over = True
+                    self.show_game_over()
+                    return 'game_over'
+                self.items.remove(item)
+            elif item.is_of_screen():
+                self.items.remove(item)
+        self.canvas.itemconfig(self.lives_text,
+                               text = f'Жизни: {self.player.get_lives()}')
+        if len(self.items) < 7:
+            if randint(1, 10) > 7:
+                self.spawn_items()
+        return "playing"
+    def show_game_over(self):
+        self.canvas.create_text(
+            400, 300,
+            text = f'ИГРА ОКОНЧЕНА!\nСчет: {self.score}',
+            font = ('Arial', 30, 'bold'), fill = 'red')
 window = Tk()
 window.title("Съедобное - несъедобное 2")
 window.geometry('800x600')
@@ -269,9 +344,12 @@ player = Player(canvas, 400, 500)
 player.load_frames()
 player.create()
 
-apple = Fallingitems(canvas, 550, 0, 'apple')
-apple.load_items()
-apple.create()
+
+
+
+game_manager = GameManager(canvas, player)
+
+
 
 window.bind('<KeyPress>', on_key_press)
 

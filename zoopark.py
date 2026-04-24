@@ -25,10 +25,10 @@ class DomesticAnimal(Animal):
     def __init__(self, name, age, species, owner):
         super().__init__(name,age,species)
         self.owner = owner
-        def make_sound(self):
-            print(f'Домашнее животное {self.name} издает звуки')
-        def pet(self):
-            print(f'{self.name} мычит от удовольствия')
+    def make_sound(self):
+        print(f'Домашнее животное {self.name} издает звуки')
+    def pet(self):
+        print(f'{self.name} мычит от удовольствия')
 
 class Staff(Human):
     def __init__(self, name, age, status, salary):
@@ -56,8 +56,8 @@ class Cow(DomesticAnimal):
     def make_sound(self):
         super().make_sound()
         print("Мууу")
-    def pet(self):
-        print(f"Корова {self.name} мычит от удовольтсвия")
+    #def pet(self):
+    #    print(f"Корова {self.name} мычит от удовольтсвия")
 
 class Director(Staff):
     def __init__(self, name, age, status, salary):
@@ -84,6 +84,8 @@ class Cat(DomesticAnimal):
         super().__init__(name, age, species, owner)
     def make_sound(self):
         print(f"Кошка {self.name} мякает")
+    #def pet(self):
+    #    print(f"Кошка {self.name} мурлычет от удовольствия")
 class Goat(DomesticAnimal):
     def __init__(self, name, age, species, owner):
         super().__init__(name,age,species, owner)
@@ -106,10 +108,11 @@ cow = Cow("Буренка", 4, "Зоопарк")
 director = Director("Иван Петрович", 45, "директор", 150000)
 child = Child("Маша", 8, True)
 lion = Lion('Лео', 5, "Млекопитающее", True)
-cat = Cat("Мурка", 2, "Зоопарк")
+cat = Cat("Мурка", 2, "Млекопитающее", "Зоопарк")
 goat = Goat("Дымок", 4, "млекопитающее", False)
 elephant = Elephant("Тини", 6, "млекопитающее", False)
 veterinary = Veterinary("Анна", 27, "Ветеринар", 70000)
+
 wolf.introduce()
 wolf.make_sound()
 
@@ -131,4 +134,12 @@ elephant.make_sound()
 
 veterinary.introduce()
 veterinary.work()
-#дз создать другие классы(лев, кошка кощел, взрослый, ветеринар, слон, лев
+
+goat.introduce()
+goat.make_sound()
+
+cat.introduce()
+cat.make_sound()
+cat.pet()
+
+#дз создать другие классы(лев, кошка козел, взрослый, ветеринар, слон, лев

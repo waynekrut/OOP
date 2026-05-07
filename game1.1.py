@@ -298,6 +298,7 @@ class GameManager:
         else:
             item = Axe(self.canvas, x, 0)
         item.create()
+        self.items.append(item)
     def update(self):
         if self.game_over:
             return "game_over"
@@ -320,7 +321,7 @@ class GameManager:
                     self.show_game_over()
                     return 'game_over'
                 self.items.remove(item)
-            elif item.is_of_screen():
+            elif item.is_off_screen():
                 self.items.remove(item)
         self.canvas.itemconfig(self.lives_text,
                                text = f'Жизни: {self.player.get_lives()}')

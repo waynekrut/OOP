@@ -299,10 +299,10 @@ class GameManager:
 
         self.score_text = canvas.create_text(
             50, 30, text="Счет: 0",
-            font=('Arial', 20), fill='white')
+            font=('Arial', 20), fill='black')
 
         self.lives_text = canvas.create_text(
-            150, 30, text="Жизни: 3",
+            700, 30, text="Жизни: 3",
             font=('Arial', 20), fill='black')
 
     def spawn_items(self):

@@ -235,7 +235,7 @@ class Vegetable(Fallingitems):
         self.points = 1
 
         if vegetable_type == 'watermelon':
-            self.set_speed(15)
+            self.set_speed(17)
             self.load_items('textures/watermelon.png')
         if vegetable_type == 'sberry':
             self.set_speed(8)
@@ -298,7 +298,7 @@ class GameManager:
         self.game_over = False
 
         self.score_text = canvas.create_text(
-            50, 30, text="Счет: 0",
+            100, 30, text="Счет: 0",
             font=('Arial', 20), fill='black')
 
         self.lives_text = canvas.create_text(
